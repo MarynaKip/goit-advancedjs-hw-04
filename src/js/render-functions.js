@@ -1,14 +1,10 @@
-import SimpleLightbox from "simplelightbox";
-import "simplelightbox/dist/simple-lightbox.min.css";
+import SimpleLightbox from 'simplelightbox';
+import 'simplelightbox/dist/simple-lightbox.min.css';
 
-export function renderGallery(images) {
+let lightbox = new SimpleLightbox('.gallery a');
+
+export function renderGallery(images, append = false) {
     const gallery = document.querySelector('.gallery');
-    gallery.innerHTML = '';
-
-    if (images.length === 0) {
-        gallery.innerHTML = "<p>No images found. Try another search.</p>";
-        return;
-    }
 
     const markup = images.map(img => `
         <li class="gallery-item">
@@ -21,7 +17,11 @@ export function renderGallery(images) {
         </li>
     `).join('');
 
-    gallery.innerHTML = markup;
-    
-    new SimpleLightbox('.gallery a').refresh();
+    if (append) {
+        gallery.insertAdjacentHTML('beforeend', markup);
+    } else {
+        gallery.innerHTML = markup;
+    }
+
+    lightbox.refresh();
 }
