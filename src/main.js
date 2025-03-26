@@ -1,35 +1,25 @@
-import { createGallery } from './js/1-gallery.js';
-import { handleForm } from './js/2-form.js';
+import { fetchImages } from './js/pixabay-api.js'
+import { renderGallery } from './js/render-functions.js';
+import iziToast from "izitoast";
+import "izitoast/dist/css/iziToast.min.css";
 
-document.addEventListener('DOMContentLoaded', () => {
-  if (window.location.pathname.includes("1-gallery.html")) {
-    createGallery();
-  } else if (window.location.pathname.includes("2-form.html")) {
-    handleForm();
-  }
-
-  const links = document.querySelectorAll("nav a");
-  const contentSection = document.getElementById("dynamic-content");
-
-  links.forEach((link) => {
-    link.addEventListener("click", async (event) => {
-      event.preventDefault();
-      const url = link.getAttribute("href");
-
-      try {
-        const response = await fetch(url);
-        const html = await response.text();
-        contentSection.innerHTML = html;
-
-        if (url.includes("1-gallery.html")) {
-          createGallery();
-        } else if (url.includes("2-form.html")) {
-          handleForm();
-        }
-      } catch (error) {
-        console.error("Error loading content:", error);
-        contentSection.innerHTML = "<p>Failed to load content.</p>";
-      }
-    });
-  });
+document.querySelector('#search-form').addEventListener('submit', async (event) => {
+    event.preventDefault();
+    console.log('submit');
+    console.log(event)
+    const query = event.target.elements[0].value.trim();
+    if (!query) {
+        iziToast.warning({ title: 'Warning', message: 'Enter a search term!' });
+        return;
+    }
+    
+    document.querySelector('.gallery').innerHTML = '<div class="loader"></div>';
+    
+    const { hits } = await fetchImages(query);
+    
+    if (hits.length === 0) {
+        iziToast.error({ title: 'Error', message: 'No images found!' });
+    } else {
+        renderGallery(hits);
+    }
 });
